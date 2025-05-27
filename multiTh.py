@@ -2,6 +2,7 @@ import pandas as pd
 from openai import OpenAI
 from concurrent.futures import ThreadPoolExecutor
 import threading
+import re
 
 # 测试模式配置
 TEST_MODE = False  # 设置为True启用测试模式
@@ -34,13 +35,14 @@ def process_row(index, columns, api_key):
             ],
             stream=False
         )
-        raw = response.choices[0].message.content
+        raw = response.choices[0].message.content.strip('S')
         result = raw.split("S")
 
-        # 列名过滤机制
+        # 过滤机制
         column_set = set(columns)
         filtered_result = [item for item in result if item not in column_set]
-        
+        if re.fullmatch(r'.+主观要件', filtered_result[0]) or ((filtered_result[0] == '过失' or filtered_result[0] == '故意') and ("主体" not in filtered_result[1]) and ("人" not in filtered_result[1])):
+            del filtered_result[0]
         # 调试信息（测试模式时显示）
         if TEST_MODE and len(filtered_result) != len(result):
             removed = set(result) - set(filtered_result)
