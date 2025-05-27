@@ -22,7 +22,7 @@ class ThreadSafeDF:
             self.df.loc[index] = adjusted
 
 def process_row(index, columns, api_key):
-    prompt = f"输出{index}的{','.join(columns)}，用大写字母L分隔，如果没有就回答'无'。按顺序列出结论即可，不必列出项目名称"
+    prompt = f"输出{index}的{','.join(columns)}，用大写字母S分隔，如果没有就回答'无'。按顺序列出结论即可，不必列出项目名称"
     
     try:
         client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
@@ -35,7 +35,7 @@ def process_row(index, columns, api_key):
             stream=False
         )
         raw = response.choices[0].message.content
-        result = raw.split("L")
+        result = raw.split("S")
 
         # 列名过滤机制
         column_set = set(columns)
